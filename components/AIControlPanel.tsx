@@ -128,20 +128,9 @@ const ClipAnalysisSection: React.FC<{
                         </div>
                         <p className="text-sm text-gray-300 mb-3">{clipSuggestion.reason}</p>
                         
-                        <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-300 text-sm">Editing Suggestions:</h4>
-                            <ul className="space-y-1">
-                                {clipSuggestion.editingSuggestions.map((suggestion, index) => (
-                                    <li key={index} className="text-xs text-gray-400 bg-gray-700/30 p-2 rounded">
-                                        • {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        
-                        {clipSuggestion.editingActions && clipSuggestion.editingActions.length > 0 && (
+                        {clipSuggestion.editingActions && clipSuggestion.editingActions.length > 0 ? (
                             <div className="space-y-2 mt-3">
-                                <h4 className="font-semibold text-gray-300 text-sm">Automated Optimizations:</h4>
+                                <h4 className="font-semibold text-gray-300 text-sm">Optimizations Ready:</h4>
                                 <ul className="space-y-1">
                                     {clipSuggestion.editingActions.map((action, index) => (
                                         <li key={index} className="text-xs text-gray-400 bg-gray-700/30 p-2 rounded flex items-center">
@@ -155,9 +144,20 @@ const ClipAnalysisSection: React.FC<{
                                         onClick={() => onApplyOptimizations(clipSuggestion.editingActions!)}
                                         className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-2 px-4 rounded-md hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-purple-500 transition-colors text-sm"
                                     >
-                                        Apply All Optimizations
+                                        Apply Optimizations with Nano Banana
                                     </button>
                                 )}
+                            </div>
+                        ) : clipSuggestion.editingSuggestions && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold text-gray-300 text-sm">Suggested Optimizations:</h4>
+                                <ul className="space-y-1">
+                                    {clipSuggestion.editingSuggestions.map((suggestion, index) => (
+                                        <li key={index} className="text-xs text-gray-400 bg-gray-700/30 p-2 rounded">
+                                            • {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         )}
                         

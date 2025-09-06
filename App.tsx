@@ -7,6 +7,7 @@ import { LoadingOverlay } from './components/LoadingOverlay';
 import { analyzeVideoFile, analyzeVideoForClips, editFrame } from './services/geminiService';
 import type { Frame, AISuggestion, ClipSuggestion, EditingAction } from './types';
 import { executeEditingPipeline } from './utils/videoEditingTools';
+import { processVideoWithEdits } from './utils/videoProcessor';
 import { VideoTrimmer } from './components/VideoTrimming/VideoTrimmer';
 import { VideoPreview } from './components/VideoPreview';
 import { VideoProvider, useVideo } from './contexts/VideoContext';
@@ -142,8 +143,8 @@ const AppContent: React.FC = () => {
   }, [originalFile, loadAndProcessVideo, trimRange]);
 
   const handleApplyOptimizations = useCallback(async (actions: EditingAction[]) => {
-    if (!trimmedVideoFile) {
-      setErrorMessage("No video file available to apply optimizations.");
+    if (!trimmedVideoFile || frames.length === 0) {
+      setErrorMessage("No video or frames available to apply optimizations.");
       return;
     }
     
@@ -151,17 +152,58 @@ const AppContent: React.FC = () => {
     setErrorMessage(null);
     
     try {
+      // Adjust action times to be relative to current frames (not the full video)
+      // Since clipSuggestion times are relative to the analyzed segment
+      const adjustedActions = actions.map(action => {
+        const adjustedParams = { ...action.params };
+        
+        // For trim actions, the times from Gemini are relative to the clip
+        // but we need them relative to our current frames (which may already be trimmed)
+        if (action.tool === 'trim' && clipSuggestion) {
+          // The clipSuggestion times are relative to the analyzed segment
+          // Our frames represent that segment, so times should work as-is
+          console.log(`Trim action: ${adjustedParams.startTime} to ${adjustedParams.endTime} (clip suggestion: ${clipSuggestion.startTime} to ${clipSuggestion.endTime})`);
+        }
+        
+        return { tool: action.tool, params: adjustedParams };
+      });
+      
+      // First, execute the tools to get their results
       const results = await executeEditingPipeline(
-        actions.map(a => ({ tool: a.tool, params: a.params })),
+        adjustedActions,
         trimmedVideoFile
       );
       
       console.log('Applied optimizations:', results);
       
-      // TODO: Process results and update video display
-      // For now, just log the results
+      // Then, apply the edits to the actual frames using Nano Banana
+      const processedVideo = await processVideoWithEdits(
+        frames,
+        adjustedActions,
+        10, // fps
+        editFrame // Pass the Nano Banana editFrame function
+      );
+      
+      // Update the frames in the video context
+      if (processedVideo.frames) {
+        // Clear existing edited frames and replace with processed ones
+        processedVideo.frames.forEach((frame, index) => {
+          updateEditedFrame(index, frame);
+        });
+        
+        // If frames were trimmed, we need to handle that differently
+        if (processedVideo.frames.length !== frames.length) {
+          // For now, just update what we can
+          console.log(`Frame count changed from ${frames.length} to ${processedVideo.frames.length}`);
+        }
+      }
+      
       setLoadingMessage(null);
-      setErrorMessage(`Applied ${results.length} optimizations successfully! (Check console for details)`);
+      const message = `Applied ${results.length} optimizations: ${processedVideo.metadata.appliedEdits.join(', ')}`;
+      console.log(message);
+      // Show success briefly
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(null), 5000);
       
     } catch (error) {
       console.error("Error applying optimizations:", error);
@@ -169,7 +211,7 @@ const AppContent: React.FC = () => {
     } finally {
       setLoadingMessage(null);
     }
-  }, [trimmedVideoFile]);
+  }, [trimmedVideoFile, frames, updateEditedFrame, clipSuggestion]);
 
   const handleEditFrame = useCallback(async (prompt: string) => {
     if (selectedFrameIndex === null) {
