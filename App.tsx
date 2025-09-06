@@ -5,7 +5,8 @@ import { AIControlPanel } from './components/AIControlPanel';
 import { Header } from './components/Header';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { analyzeVideoFile, analyzeVideoForClips, editFrame } from './services/geminiService';
-import type { Frame, AISuggestion, ClipSuggestion } from './types';
+import type { Frame, AISuggestion, ClipSuggestion, EditingAction } from './types';
+import { executeEditingPipeline } from './utils/videoEditingTools';
 import { VideoTrimmer } from './components/VideoTrimming/VideoTrimmer';
 import { VideoPreview } from './components/VideoPreview';
 import { VideoProvider, useVideo } from './contexts/VideoContext';
@@ -139,6 +140,36 @@ const AppContent: React.FC = () => {
       setLoadingMessage(null);
     }
   }, [originalFile, loadAndProcessVideo, trimRange]);
+
+  const handleApplyOptimizations = useCallback(async (actions: EditingAction[]) => {
+    if (!trimmedVideoFile) {
+      setErrorMessage("No video file available to apply optimizations.");
+      return;
+    }
+    
+    setLoadingMessage('Applying automated optimizations...');
+    setErrorMessage(null);
+    
+    try {
+      const results = await executeEditingPipeline(
+        actions.map(a => ({ tool: a.tool, params: a.params })),
+        trimmedVideoFile
+      );
+      
+      console.log('Applied optimizations:', results);
+      
+      // TODO: Process results and update video display
+      // For now, just log the results
+      setLoadingMessage(null);
+      setErrorMessage(`Applied ${results.length} optimizations successfully! (Check console for details)`);
+      
+    } catch (error) {
+      console.error("Error applying optimizations:", error);
+      setErrorMessage("Failed to apply optimizations. Please check the console for details.");
+    } finally {
+      setLoadingMessage(null);
+    }
+  }, [trimmedVideoFile]);
 
   const handleEditFrame = useCallback(async (prompt: string) => {
     if (selectedFrameIndex === null) {
@@ -288,6 +319,7 @@ const AppContent: React.FC = () => {
                 onBatchEdit={handleBatchEdit}
                 onAnalyzeClips={handleAnalyzeClips}
                 onUseClip={handleUseClip}
+                onApplyOptimizations={handleApplyOptimizations}
                 suggestions={aiSuggestions}
                 clipSuggestion={clipSuggestion}
                 selectedFrame={selectedFrameIndex !== null ? frames[selectedFrameIndex] : null}

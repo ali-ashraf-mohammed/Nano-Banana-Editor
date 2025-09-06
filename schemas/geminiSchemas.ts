@@ -49,6 +49,29 @@ export const clipSuggestionSchema = {
         },
         description: 'Specific editing suggestions to enhance the viral potential of this clip.',
       },
+      editingActions: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            tool: {
+              type: Type.STRING,
+              enum: ['trim', 'textOverlay', 'effects', 'audio', 'cropZoom', 'speed', 'colorGrading', 'transition'],
+              description: 'The editing tool to use',
+            },
+            params: {
+              type: Type.OBJECT,
+              description: 'Parameters specific to the tool',
+            },
+            description: {
+              type: Type.STRING,
+              description: 'Human-readable description of what this action does',
+            },
+          },
+          required: ['tool', 'params', 'description'],
+        },
+        description: 'Automated editing actions to apply using the available tools.',
+      },
     },
     required: ['startTime', 'endTime', 'duration', 'reason', 'viralPotential', 'editingSuggestions'],
 };

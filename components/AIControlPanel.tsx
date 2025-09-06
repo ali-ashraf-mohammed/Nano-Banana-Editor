@@ -8,6 +8,7 @@ interface AIControlPanelProps {
   onBatchEdit: (prompt: string, frameIndices: number[]) => void;
   onAnalyzeClips: () => void;
   onUseClip?: (startTime: number, endTime: number) => void;
+  onApplyOptimizations?: (actions: any[]) => void;
   suggestions: AISuggestion[];
   clipSuggestion: ClipSuggestion | null;
   selectedFrame: Frame | null;
@@ -77,8 +78,9 @@ const EditSection: React.FC<{
 const ClipAnalysisSection: React.FC<{ 
     clipSuggestion: ClipSuggestion | null; 
     onAnalyzeClips: () => void; 
-    onUseClip?: (startTime: number, endTime: number) => void 
-}> = ({ clipSuggestion, onAnalyzeClips, onUseClip }) => {
+    onUseClip?: (startTime: number, endTime: number) => void;
+    onApplyOptimizations?: (actions: any[]) => void;
+}> = ({ clipSuggestion, onAnalyzeClips, onUseClip, onApplyOptimizations }) => {
     const [hasAnalyzedClips, setHasAnalyzedClips] = useState(false);
     const { frames } = useVideo();
     const hasFrames = frames.length > 0;
@@ -137,6 +139,28 @@ const ClipAnalysisSection: React.FC<{
                             </ul>
                         </div>
                         
+                        {clipSuggestion.editingActions && clipSuggestion.editingActions.length > 0 && (
+                            <div className="space-y-2 mt-3">
+                                <h4 className="font-semibold text-gray-300 text-sm">Automated Optimizations:</h4>
+                                <ul className="space-y-1">
+                                    {clipSuggestion.editingActions.map((action, index) => (
+                                        <li key={index} className="text-xs text-gray-400 bg-gray-700/30 p-2 rounded flex items-center">
+                                            <span className="font-mono text-brand-teal mr-2">[{action.tool}]</span>
+                                            {action.description}
+                                        </li>
+                                    ))}
+                                </ul>
+                                {onApplyOptimizations && (
+                                    <button
+                                        onClick={() => onApplyOptimizations(clipSuggestion.editingActions!)}
+                                        className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-2 px-4 rounded-md hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-purple-500 transition-colors text-sm"
+                                    >
+                                        Apply All Optimizations
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        
                         {onUseClip && (
                             <button
                                 onClick={() => onUseClip(clipSuggestion.startTime, clipSuggestion.endTime)}
@@ -157,7 +181,8 @@ export const AIControlPanel: React.FC<AIControlPanelProps> = ({
     onEdit, 
     onBatchEdit,
     onAnalyzeClips, 
-    onUseClip, 
+    onUseClip,
+    onApplyOptimizations, 
     suggestions, 
     clipSuggestion, 
     selectedFrame,
@@ -205,7 +230,8 @@ export const AIControlPanel: React.FC<AIControlPanelProps> = ({
             <ClipAnalysisSection 
                 clipSuggestion={clipSuggestion} 
                 onAnalyzeClips={onAnalyzeClips} 
-                onUseClip={onUseClip} 
+                onUseClip={onUseClip}
+                onApplyOptimizations={onApplyOptimizations} 
             />
             <EditSection 
                 selectedFrame={selectedFrame} 
