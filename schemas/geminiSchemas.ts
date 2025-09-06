@@ -62,6 +62,40 @@ export const clipSuggestionSchema = {
             params: {
               type: Type.OBJECT,
               description: 'Parameters specific to the tool',
+              properties: {
+                // Generic parameters that could be used by any tool
+                text: { type: Type.STRING },
+                startTime: { type: Type.NUMBER },
+                endTime: { type: Type.NUMBER },
+                duration: { type: Type.NUMBER },
+                position: { 
+                  type: Type.OBJECT,
+                  properties: {
+                    x: { type: Type.NUMBER },
+                    y: { type: Type.NUMBER }
+                  }
+                },
+                effect: { type: Type.STRING },
+                audioType: { type: Type.STRING },
+                volume: { type: Type.NUMBER },
+                fadeIn: { type: Type.BOOLEAN },
+                fadeOut: { type: Type.BOOLEAN },
+                cropArea: {
+                  type: Type.OBJECT,
+                  properties: {
+                    x: { type: Type.NUMBER },
+                    y: { type: Type.NUMBER },
+                    width: { type: Type.NUMBER },
+                    height: { type: Type.NUMBER }
+                  }
+                },
+                zoomLevel: { type: Type.NUMBER },
+                panDirection: { type: Type.STRING },
+                speedMultiplier: { type: Type.NUMBER },
+                preset: { type: Type.STRING },
+                intensity: { type: Type.NUMBER },
+                type: { type: Type.STRING }
+              }
             },
             description: {
               type: Type.STRING,
