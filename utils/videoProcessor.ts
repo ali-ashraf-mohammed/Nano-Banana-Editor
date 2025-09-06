@@ -17,7 +17,7 @@ export interface ProcessedVideo {
 }
 
 /**
- * Apply text overlay to frames using Gemini's editFrame
+ * Apply text overlay to KEY FRAMES ONLY using Gemini's editFrame
  */
 export async function applyTextOverlay(
   frames: Frame[],
@@ -33,20 +33,29 @@ export async function applyTextOverlay(
   
   const editedFrames = [...frames];
   
-  // Apply text overlay to frames in the specified range
-  for (let i = startFrame; i <= endFrame && i < frames.length; i++) {
+  // ONLY edit key frames - first, middle, and last frame of the range
+  const keyFrames = [
+    startFrame, // First frame
+    Math.floor((startFrame + endFrame) / 2), // Middle frame
+    Math.min(endFrame, frames.length - 1) // Last frame
+  ].filter((f, i, arr) => arr.indexOf(f) === i && f < frames.length); // Remove duplicates and out of bounds
+  
+  console.log(`Text overlay: Editing ${keyFrames.length} key frames instead of ${endFrame - startFrame + 1} frames`);
+  
+  for (const frameIndex of keyFrames) {
     try {
       const prompt = `Add text overlay "${text}" at position ${position.x}%, ${position.y}% from top-left. Make it clearly visible with good contrast.`;
-      const prevFrame = i > 0 ? frames[i - 1] : null;
-      const nextFrame = i < frames.length - 1 ? frames[i + 1] : null;
+      const prevFrame = frameIndex > 0 ? frames[frameIndex - 1] : null;
+      const nextFrame = frameIndex < frames.length - 1 ? frames[frameIndex + 1] : null;
       
-      const editedData = await editFrameFn(frames[i], prompt, prevFrame, nextFrame);
-      editedFrames[i] = {
-        ...frames[i],
+      console.log(`Editing frame ${frameIndex} with text overlay...`);
+      const editedData = await editFrameFn(frames[frameIndex], prompt, prevFrame, nextFrame);
+      editedFrames[frameIndex] = {
+        ...frames[frameIndex],
         data: editedData
       };
     } catch (error) {
-      console.error(`Error editing frame ${i}:`, error);
+      console.error(`Error editing frame ${frameIndex}:`, error);
     }
   }
   
@@ -206,18 +215,31 @@ export async function processVideoWithEdits(
           
         case 'effects':
         case 'colorGrading':
-          // Use Nano Banana for visual effects
+          // Use Nano Banana for visual effects ON KEY FRAMES ONLY
           const effectPrompt = action.tool === 'effects' 
             ? `Apply ${action.params.effect} effect`
             : `Apply ${action.params.preset} color grading with ${action.params.intensity} intensity`;
           
-          for (let i = 0; i < processedFrames.length; i++) {
+          // Only apply to key frames: first, 1/4, middle, 3/4, and last
+          const totalFrames = processedFrames.length;
+          const keyFrameIndices = [
+            0,
+            Math.floor(totalFrames * 0.25),
+            Math.floor(totalFrames * 0.5),
+            Math.floor(totalFrames * 0.75),
+            totalFrames - 1
+          ].filter((f, i, arr) => arr.indexOf(f) === i && f >= 0 && f < totalFrames);
+          
+          console.log(`${action.tool}: Editing ${keyFrameIndices.length} key frames instead of ${totalFrames} frames`);
+          
+          for (const i of keyFrameIndices) {
+            console.log(`Applying ${action.tool} to frame ${i}...`);
             const prevFrame = i > 0 ? processedFrames[i - 1] : null;
             const nextFrame = i < processedFrames.length - 1 ? processedFrames[i + 1] : null;
             const editedData = await editFrameFn(processedFrames[i], effectPrompt, prevFrame, nextFrame);
             processedFrames[i] = { ...processedFrames[i], data: editedData };
           }
-          appliedEdits.push(`Applied ${action.tool}: ${effectPrompt}`);
+          appliedEdits.push(`Applied ${action.tool} to ${keyFrameIndices.length} key frames: ${effectPrompt}`);
           break;
           
         case 'audio':
